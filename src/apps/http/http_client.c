@@ -130,7 +130,8 @@ typedef enum ehttpc_parse_state {
   HTTPC_PARSE_RX_DATA
 } httpc_parse_state_t;
 
-typedef struct _httpc_state
+/*typedef struct _httpc_state*/
+struct _httpc_state
 {
   struct altcp_pcb* pcb;
   ip_addr_t remote_addr;
@@ -150,8 +151,9 @@ typedef struct _httpc_state
   char* server_name;
   char* uri;
 #endif
-} httpc_state_t;
+} ;
 
+/*} httpc_state_t;*/
 /** Free http client state and deallocate all resources within */
 static err_t
 httpc_free_state(httpc_state_t* req)

@@ -39,11 +39,13 @@ CFLAGS+=-g -DLWIP_DEBUG -Wall -pedantic -Werror \
 	-Wc++-compat -Wwrite-strings -Wold-style-definition -Wcast-align \
 	-Wmissing-prototypes -Wnested-externs \
 	-Wunreachable-code -Wuninitialized -Wmissing-prototypes \
-	-Wredundant-decls -Waggregate-return -Wlogical-not-parentheses
+	-Wredundant-decls -Waggregate-return 
+	#-Wredundant-decls -Waggregate-return -Wlogical-not-parentheses
 #	-Wconversion -Wsign-compare -Wmissing-include-dirs
 
 ifeq (,$(findstring clang,$(CC)))
-CFLAGS+= -Wlogical-op -Wc90-c99-compat -Wtrampolines
+CFLAGS+= -Wlogical-op -Wtrampolines
+#CFLAGS+= -Wlogical-op -Wc90-c99-compat -Wtrampolines
 # if GCC is newer than 4.8/4.9 you may use:
 #CFLAGS:=$(CFLAGS) -fsanitize=address -fstack-protector -fstack-check -fsanitize=undefined -fno-sanitize=alignment
 else
@@ -67,7 +69,8 @@ CFLAGS+=-I. \
 MBEDTLSDIR?=$(LWIPDIR)/../mbedtls
 ifneq (,$(wildcard $(MBEDTLSDIR)/include/mbedtls/*.h))
 LDFLAGS+=-L$(MBEDTLSDIR)/library -lmbedtls -lmbedcrypto -lmbedx509
-CFLAGS+=-I$(MBEDTLSDIR)/include -Wno-redundant-decls -DLWIP_HAVE_MBEDTLS=1 -Wno-c90-c99-compat
+#CFLAGS+=-I$(MBEDTLSDIR)/include -Wno-redundant-decls -DLWIP_HAVE_MBEDTLS=1 -Wno-c90-c99-compat
+CFLAGS+=-I$(MBEDTLSDIR)/include -Wno-redundant-decls -DLWIP_HAVE_MBEDTLS=1 
 endif
 
 include $(CONTRIBDIR)/Filelists.mk

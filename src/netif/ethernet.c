@@ -105,7 +105,11 @@ ethernet_input(struct pbuf *p, struct netif *netif)
                (unsigned char)ethhdr->src.addr[0],  (unsigned char)ethhdr->src.addr[1],  (unsigned char)ethhdr->src.addr[2],
                (unsigned char)ethhdr->src.addr[3],  (unsigned char)ethhdr->src.addr[4],  (unsigned char)ethhdr->src.addr[5],
                lwip_htons(ethhdr->type)));
-
+  printf("%s input: dst mac: %02x:%02x:%02x:%02x:%02x:%02x, src mac: %02x:%02x:%02x:%02x:%02x:%02x, proto : %04x \n ",__func__,\
+                             (unsigned char)ethhdr->dest.addr[0], (unsigned char)ethhdr->dest.addr[1], (unsigned char)ethhdr->dest.addr[2],\
+                              (unsigned char)ethhdr->dest.addr[3], (unsigned char)ethhdr->dest.addr[4], (unsigned char)ethhdr->dest.addr[5],\
+                               (unsigned char)ethhdr->src.addr[0],  (unsigned char)ethhdr->src.addr[1],  (unsigned char)ethhdr->src.addr[2], \
+                                 (unsigned char)ethhdr->src.addr[3],  (unsigned char)ethhdr->src.addr[4],  (unsigned char)ethhdr->src.addr[5],lwip_htons(ethhdr->type));
   type = ethhdr->type;
 #if ETHARP_SUPPORT_VLAN
   if (type == PP_HTONS(ETHTYPE_VLAN)) {

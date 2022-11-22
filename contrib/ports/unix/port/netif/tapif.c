@@ -41,13 +41,6 @@
 #include <sys/time.h>
 #include <sys/uio.h>
 #include <sys/socket.h>
-#define TEST_TAP 1
-#if TEST_TAP
-#define MAC_ARG(p) p[0],p[1],p[2],p[3],p[4],p[5]
-#define IP_ARG(p)  p[0],p[1],p[2],p[3]
-#include<linux/ip.h>
-#include<linux/if_ether.h>
-#endif
 #include "lwip/opt.h"
 
 #include "lwip/debug.h"
@@ -70,6 +63,14 @@
 #include <sys/ioctl.h>
 #include <linux/if.h>
 #include <linux/if_tun.h>
+#define TEST_TAP 1
+#if TEST_TAP
+static int print_tap_proto(int input, struct pbuf *p);
+#define MAC_ARG(p) p[0],p[1],p[2],p[3],p[4],p[5]
+#define IP_ARG(p)  p[0],p[1],p[2],p[3]
+#include<linux/ip.h>
+#include<linux/if_ether.h>
+#endif
 /*
  * Creating a tap interface requires special privileges. If the interfaces
  * is created in advance with `tunctl -u <user>` it can be opened as a regular
@@ -245,6 +246,9 @@ low_level_output(struct netif *netif, struct pbuf *p)
   /* initiate transfer(); */
   pbuf_copy_partial(p, buf, p->tot_len, 0);
 
+#if TEST_TAP
+   print_tap_proto(0,p);
+#endif
   /* signal that packet should be sent(); */
   written = write(tapif->fd, buf, p->tot_len);
   if (written < p->tot_len) {
@@ -306,6 +310,37 @@ low_level_input(struct netif *netif)
   return p;
 }
 
+static int print_tap_proto(int input, struct pbuf *p)
+{
+#if TEST_TAP
+  struct ethhdr *ethh ;
+  struct iphdr *iph;
+  unsigned char *src, *dst;
+#endif
+#if TEST_TAP
+   if (input)
+   {
+      printf("*********** tap input packet \n ");
+   }
+   else 
+   {
+      printf("*********** tap output packet \n");
+   }
+   ethh = (struct ethhdr*)(p->payload);
+   printf("h_dest:%02x:%02x:%02x:%02x:%02x:%02x \n", MAC_ARG(ethh->h_dest));
+   printf("h_source:%02x:%02x:%02x:%02x:%02x:%02x \n", MAC_ARG(ethh->h_source));
+   printf("h_proto:%04x\n",ntohs(ethh->h_proto));
+   if(0x0800 == ntohs(ethh->h_proto) )
+   {
+      iph = (struct iphdr *)((char *)p->payload + sizeof(struct ethhdr));
+      src = (unsigned char *)&(iph->saddr);
+      printf("src ip:%d.%d.%d.%d\n",IP_ARG(src));
+      dst = (unsigned char *)&(iph->daddr);
+      printf("dest ip:%d.%d.%d.%d\n",IP_ARG(dst));
+   }
+#endif
+   return 0;
+}
 /*-----------------------------------------------------------------------------------*/
 /*
  * tapif_input():
@@ -322,11 +357,6 @@ tapif_input(struct netif *netif)
 {
   struct pbuf *p = low_level_input(netif);
 
-#if TEST_TAP
-  struct ethhdr *ethh ;
-  struct iphdr *iph;
-  unsigned char *src, *dst;
-#endif
   if (p == NULL) {
 #if LINK_STATS
     LINK_STATS_INC(link.recv);
@@ -335,20 +365,8 @@ tapif_input(struct netif *netif)
     return;
   }
 
-   printf("*******************tapif_input \n");
 #if TEST_TAP
-   ethh = (struct ethhdr*)(p->payload);
-   printf("h_dest:%02x:%02x:%02x:%02x:%02x:%02x \n", MAC_ARG(ethh->h_dest));
-   printf("h_source:%02x:%02x:%02x:%02x:%02x:%02x \n", MAC_ARG(ethh->h_source));
-   printf("h_proto:%04x\n",ntohs(ethh->h_proto));
-   if(0x0800 == ntohs(ethh->h_proto) )
-   {
-      iph = (struct iphdr *)((char *)p->payload + sizeof(struct ethhdr));
-      src = (unsigned char *)&(iph->saddr);
-      printf("src ip:%d.%d.%d.%d\n",IP_ARG(src));
-      dst = (unsigned char *)&(iph->daddr);
-      printf("dest ip:%d.%d.%d.%d\n",IP_ARG(dst));
-   }
+   print_tap_proto(1,p);
 #endif
   if (netif->input(p, netif) != ERR_OK) {
     LWIP_DEBUGF(NETIF_DEBUG, ("tapif_input: netif input error\n"));

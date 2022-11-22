@@ -166,3 +166,15 @@ tapif_input(struct netif *netif)
   }
 }
 ```
+
+![image](pic/tap_mac.png)
+
+
+## ethernet_input(struct pbuf *p, struct netif *netif)
+
+
+![image](pic/ether3.png)
+
+![image](pic/ether.png)
+
+![image](pic/ether2.png)

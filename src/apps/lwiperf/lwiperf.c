@@ -679,7 +679,8 @@ lwiperf_start_tcp_server(const ip_addr_t *local_addr, u16_t local_port,
   err_t err;
   lwiperf_state_tcp_t *state = NULL;
 
-  printf("tcp server  IP is %s and port %d \n", ip4addr_ntoa(local_addr), local_port);
+  /*printf("tcp server  IP is %s and port %d \n", ip4addr_ntoa(local_addr), local_port);
+  */
   err = lwiperf_start_tcp_server_impl(local_addr, local_port, report_fn, report_arg,
     NULL, &state);
   if (err == ERR_OK) {
